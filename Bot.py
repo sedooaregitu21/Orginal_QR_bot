@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 
 # ----------------- CONFIGURATION -----------------
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_BOT_TOKEN = os.environ.get("8883142822:AAEj0gXg9gmwJMfjb8yFxEsUTXY182kgZ5U")
 FAYDA_API_KEY = os.environ.get("FAYDA_API_KEY")
 FAYDA_BASE_URL = "https://otp.affiliate.pro.et/api/v1"
 
