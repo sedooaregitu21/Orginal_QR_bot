@@ -242,7 +242,6 @@ async def handle_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE):
       ]
   ]
 
-  # ተጠቃሚው አሁን ያለው ፖይንት ከአቃቤ (Database) ይነበባል
   user_points = get_user_points(user.id)
 
   try:
@@ -359,7 +358,12 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def get_fan(update: Update, context: ContextTypes.DEFAULT_TYPE):
   lang = get_lang(context)
-  fan = update.message.text.strip().replace(" ", "")
+  text = update.message.text.strip()
+  
+  if text.startswith("/") or text in ["🪪 Verify Digital ID", "💳 ፖይንት መሙያ (Deposit)", "💰 ባላንስ እይ"]:
+    return WAITING_FAN
+
+  fan = text.replace(" ", "")
   context.user_data["fan"] = fan
   await update.message.reply_text(TEXTS[lang]["ask_fin"])
   return WAITING_FIN
