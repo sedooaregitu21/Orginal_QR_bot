@@ -1,5 +1,6 @@
 import base64
 import os
+import sqlite3
 import requests
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import (
@@ -12,94 +13,133 @@ from telegram.ext import (
     filters,
 )
 
-TELEGRAM_BOT_TOKEN = "8883142822:AAEbNh_VPf6KDmqEI4kmMwL4hjmDawSlRGc"
+TELEGRAM_BOT_TOKEN = "8883142822:AAHyrDKXRe-QSJzz8ahKOOBMVr4lrWUobRg"
 FAYDA_API_KEY = "fayda_303de9ba851cef11142d68c9dfed16375cffb294574f6dcb"
 FAYDA_BASE_URL = "https://otp.affiliate.pro.et/api/v1"
 
-# Chapa Secret Key
-CHAPA_SECRET_KEY = "CHASECK_TEST-xxxxxxxxxxxxxxxx"
+# Ye Admin Telegram chat ID (Yihunni yesewachun ID ketakakelu yutku)
+ADMIN_CHAT_ID = 123456789  # <--- Ezih lay yestelegnam admin ID yigelew
 
 HEADERS = {"x-api-key": FAYDA_API_KEY, "Content-Type": "application/json"}
 
-WAITING_FAN, WAITING_FIN, WAITING_OTP, WAITING_DEPOSIT_AMOUNT = range(4)
+WAITING_FAN, WAITING_FIN, WAITING_OTP, WAITING_POINT_AMOUNT = range(4)
 
-# ----------------- Languages & Bank Info -----------------
+
+# ----------------- Database Setup -----------------
+def init_db():
+  conn = sqlite3.connect("bot_database.db")
+  cursor = conn.cursor()
+  cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY,
+            points INTEGER DEFAULT 0
+        )
+    """)
+  conn.commit()
+  conn.close()
+
+
+init_db()
+
+
+def add_user_points(user_id: int, points_to_add: int):
+  conn = sqlite3.connect("bot_database.db")
+  cursor = conn.cursor()
+  cursor.execute(
+      "INSERT OR IGNORE INTO users (user_id, points) VALUES (?, 0)", (user_id,)
+  )
+  cursor.execute(
+      "UPDATE users SET points = points + ? WHERE user_id = ?",
+      (points_to_add, user_id),
+  )
+  conn.commit()
+  cursor.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
+  res = cursor.fetchone()
+  conn.close()
+  return res[0] if res else 0
+
+
+def get_user_points(user_id: int):
+  conn = sqlite3.connect("bot_database.db")
+  cursor = conn.cursor()
+  cursor.execute("SELECT points FROM users WHERE user_id = ?", (user_id,))
+  res = cursor.fetchone()
+  conn.close()
+  return res[0] if res else 0
+
+
+# ----------------- Texts & Emojis -----------------
 TEXTS = {
     "am": {
         "welcome": (
-            "ሰላም! የFayda ID ሰነድዎን ለማውረድ ወይም ፖይንት ለመሙላት ከታች ያሉትን አማራጮች"
-            " ይምረጡ:"
+            "👋 ሰላም! የFayda ID ሰነድዎን ለማውረድ ወይም ፖይንት ለመሙላት ከታች ያሉትን"
+            " አማራጮች ይምረጡ 👇"
         ),
         "ask_fan": (
-            "እባክዎ የFAN ቁጥርዎን (16-ዲጂት) ያስገቡ (ወይም /cancel ብለው"
+            "🆔 እባክዎ የFAN ቁጥርዎን (16-ዲጂት) ያስገቡ (ወይም /cancel ብለው"
             " ይሰርዙ):"
         ),
-        "ask_fin": "አሁን ደግሞ የFIN ቁጥርዎን (12-ዲጂት) ያስገቡ:",
-        "otp_sending": "OTP ወደ ስልክዎ እየተላከ ነው... እባክዎ ትንሽ ይጠብቁ።",
+        "ask_fin": "🔢 አሁን ደግሞ የFIN ቁጥርዎን (12-ዲጂት) ያስገቡ:",
+        "otp_sending": "⏳ OTP ወደ ስልክዎ እየተላከ ነው... እባክዎ ትንሽ ይጠብቁ።",
         "otp_prompt": (
-            "OTP ({phone}) ቁጥር ላይ ተልኳል። እባክዎ የደረሰዎትን 6-ዲጂት OTP ያስገቡ:"
+            "📱 OTP ({phone}) ቁጥር ላይ ተልኳል። እባክዎ የደረሰዎትን 6-ዲጂት OTP"
+            " ያስገቡ:"
         ),
-        "processing": (
-            "መረጃዎ እየተረጋገጠ እና ፒዲኤፍ እየተዘጋጀ ነው... ጥቂት ሰከንዶች ይጠብቁ።"
-        ),
-        "success": "የእርስዎ Fayda ID በትክክል ወርዷል!",
-        "cancel": "ሂደቱ ተቋርጧል።",
-        "error_net": "የኔትወርክ ችግር አጋጥሟል። እባክዎ እንደገና ይሞክሩ።",
+        "processing": "⚙️ መረጃዎ እየተረጋገጠ እና ፒዲኤፍ እየተዘጋጀ ነው... ጥቂት ሰከንዶች ይጠብቁ።",
+        "success": "✅ የእርስዎ Fayda ID በትክክል ወርዷል!",
+        "cancel": "❌ ሂደቱ ተቋርጧል።",
+        "error_net": "⚠️ የኔትወርክ ችግር አጋጥሟል። እባክዎ እንደገና ይሞክሩ።",
         "deposit_info": (
-            "💳 **የሂሳብ መሙያ (Deposit) አማራጮች:**\n\n1️⃣ **በአውቶማቲክ (Chapa):**"
-            " ከታች ያለውን ቁልፍ በመጫን በባንክ ወይም በቴሌብር በቀጥታ በመክፈል ፖይንቶን"
-            " በራሱ እንዲሞላ ማድረግ ይችላሉ።\n\n2️⃣ **በማኑዋል (በደረሰኝ):** ገንዘብ ከፍሎ"
-            " ስክሪንሾት ማሳየት ይቻላል።\n📱 **ቴሌብር:** 0998703233\n🏦 **ንግድ ባንክ"
-            " (CBE):** 1000745390448\n🏦 **አቢሲኒካ (BoA):** 92707617\n🏦 **አማራ"
-            " ባንክ:** 9900039885356"
+            "💳 **የሂሳብ መሙያ (Deposit) የባንክ አካውንቶች:**\n\nፖይንት ለመሙላት ከታች"
+            " ባሉት የባንክ አካውንቶች ገንዘብ ከፍሎ የደረሰኝ ስክሪንሾት (Screenshot)"
+            " ይላኩ 📸\n\n📱 **ቴሌብር (Telebirr):** `0998703233`\n🏦 **ንግድ ባንክ"
+            " (CBE):** `1000745390448`\n🏦 **አቢሲኒካ ባንክ (BoA):**"
+            " `92707617`\n🏦 **አማራ ባንክ (Amhara Bank):**"
+            " `9900039885356`\n\n👇 **ክፍያውን ከፈጸሙ በኋላ የደረሰኝ ፎቶ (Screenshot)"
+            " በቀጥታ ወደዚህ ቦት ይላኩ!**"
+        ),
+        "receipt_received": (
+            "📩 **የክፍያ ማረጋገጫ ደርሷል!**\n\nአድሚኑ እስኪያረጋግጠው ⏳ ትንሽ"
+            " ይጠብቁ። ማረጋገጫ ሲሰጥ ፖይንቱ በራስ ሰር ይሞላልዎታል።"
         ),
         "balance_text": "💰 **የእርስዎ ቀሪ ፖይንት:** {points} ፖይንት ይቀርዎታል።",
         "menu_get_id": "🪪 Verify Digital ID",
         "menu_balance": "💰 ባላንስ እይ",
         "menu_deposit": "💳 ፖይንት መሙያ (Deposit)",
         "menu_lang": "🇬🇧 Change to English",
-        "ask_deposit_amount": (
-            "እባክዎ መሙላት የሚፈልጉትን የብር መጠን (ለምሳሌ: 50 ወይም 100) በቁጥር"
-            " ያስገቡ:"
-        ),
-        "chapa_link_msg": (
-            "🔗 **የክፍያ ሊንክዎ ተዘጋጅቷል!**\n\nከታች ባለው ሊንክ ገብተው ክፍያውን ይፈጽሙ:"
-            " \n{pay_url}\n\nክፍያውን ሲጨርሱ ፖይንቱ በራሱ ይጨመራል።"
-        ),
     },
     "en": {
         "welcome": (
-            "Hello! Welcome to Fayda ID Bot. Choose an option below:"
+            "👋 Hello! Welcome to Fayda ID Bot. Choose an option below 👇"
         ),
         "ask_fan": (
-            "Please enter your FAN number (16-digits) (or type /cancel):"
+            "🆔 Please enter your FAN number (16-digits) (or type /cancel):"
         ),
-        "ask_fin": "Now enter your FIN number (12-digits):",
-        "otp_sending": "Sending OTP to your phone... Please wait.",
+        "ask_fin": "🔢 Now enter your FIN number (12-digits):",
+        "otp_sending": "⏳ Sending OTP to your phone... Please wait.",
         "otp_prompt": (
-            "OTP sent to ({phone}). Please enter the 6-digit OTP code:"
+            "📱 OTP sent to ({phone}). Please enter the 6-digit OTP code:"
         ),
-        "processing": "Verifying details and generating PDF... Please wait.",
-        "success": "Your Fayda ID has been downloaded successfully!",
-        "cancel": "Process cancelled.",
-        "error_net": "Network error occurred. Please try again.",
+        "processing": "⚙️ Verifying details and generating PDF... Please wait.",
+        "success": "✅ Your Fayda ID has been downloaded successfully!",
+        "cancel": "❌ Process cancelled.",
+        "error_net": "⚠️ Network error occurred. Please try again.",
         "deposit_info": (
-            "💳 **Deposit Options:**\n\n1️⃣ **Automated (Chapa):** Click the"
-            " button below to pay online instantly.\n2️⃣ **Manual:** Transfer"
-            " to our accounts and send screenshot.\n📱 **Telebirr:**"
-            " 0998703233\n🏦 **CBE:** 1000745390448\n🏦 **Amhara Bank:**"
-            " 9900039885356"
+            "💳 **Deposit / Bank Accounts:**\n\nTo top up points, transfer money"
+            " to any account below and send the screenshot 📸\n\n📱 **Telebirr:**"
+            " `0998703233`\n🏦 **CBE:** `1000745390448`\n🏦 **BoA:**"
+            " `92707617`\n🏦 **Amhara Bank:** `9900039885356`\n\n👇 **Send your"
+            " payment screenshot directly to this bot!**"
+        ),
+        "receipt_received": (
+            "📩 **Receipt Received!**\n\nPlease wait ⏳ while the admin"
+            " verifies your payment. Your points will be added soon."
         ),
         "balance_text": "💰 **Your Balance:** You have {points} points left.",
         "menu_get_id": "🪪 Verify Digital ID",
         "menu_balance": "💰 Check Balance",
         "menu_deposit": "💳 Deposit / Top-up",
         "menu_lang": "🇪🇹 ወደ አማርኛ ቀይር",
-        "ask_deposit_amount": "Please enter the amount in ETB (e.g., 50 or 100):",
-        "chapa_link_msg": (
-            "🔗 **Your Payment Link:**\n\nPlease click the link below to pay:"
-            " \n{pay_url}"
-        ),
     },
 }
 
@@ -127,11 +167,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
   reply_markup = InlineKeyboardMarkup(keyboard)
 
   if update.message:
-    await update.message.reply_text(t["welcome"], reply_markup=reply_markup)
+    await update.message.reply_text(
+        t["welcome"], reply_markup=reply_markup, parse_mode="Markdown"
+    )
   elif update.callback_query:
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(t["welcome"], reply_markup=reply_markup)
+    await query.edit_message_text(
+        t["welcome"], reply_markup=reply_markup, parse_mode="Markdown"
+    )
 
 
 # ----------------- Button Handlers -----------------
@@ -147,40 +191,23 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await start(update, context)
 
   elif data == "btn_deposit":
-    keyboard = [
-        [
-            InlineKeyboardButton(
-                "💳 በባንክ/ቴሌብር በሊንክ ክፈል (Chapa)",
-                callback_data="btn_chapa_pay",
-            )
-        ],
-        [InlineKeyboardButton("🔙 ወደ ዋናው ምናሌ", callback_data="btn_home")],
-    ]
+    keyboard = [[InlineKeyboardButton("🔙 ወደ ዋናው ምናሌ", callback_data="btn_home")]]
     await query.edit_message_text(
         t["deposit_info"],
         reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode="Markdown",
     )
 
-  elif data == "btn_chapa_pay":
-    await query.message.reply_text(t["ask_deposit_amount"])
-    return WAITING_DEPOSIT_AMOUNT
-
   elif data == "btn_balance":
-    try:
-      res = requests.get(f"{FAYDA_BASE_URL}/balance", headers=HEADERS, timeout=10)
-      if res.status_code == 200:
-        data_res = res.json()
-        points = data_res.get("balance", data_res.get("points", "N/A"))
-        msg = t["balance_text"].format(points=points)
-      else:
-        msg = "ባላንስ ማምጣት አልተቻለም።"
-    except Exception:
-      msg = "የኔትወርክ ችግር አጋጥሟል።"
+    user_id = query.from_user.id
+    points = get_user_points(user_id)
+    msg = t["balance_text"].format(points=points)
 
     keyboard = [[InlineKeyboardButton("🔙 ወደ ዋናው ምናሌ", callback_data="btn_home")]]
     await query.edit_message_text(
-        msg, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown"
+        msg,
+        reply_markup=InlineKeyboardMarkup(keyboard),
+        parse_mode="Markdown",
     )
 
   elif data == "btn_home":
@@ -193,53 +220,127 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
   return ConversationHandler.END
 
 
-# ----------------- Chapa Link Generator -----------------
-async def create_chapa_link(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# ----------------- Screenshot Receipt Handler -----------------
+async def handle_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE):
+  user = update.effective_user
   lang = get_lang(context)
   t = TEXTS[lang]
-  text_input = update.message.text.strip()
 
-  if not text_input.isdigit():
-    await update.message.reply_text("እባክዎ ትክክለኛ የብር መጠን በቁጥር ብቻ ያስገቡ:")
-    return WAITING_DEPOSIT_AMOUNT
+  if not update.message.photo:
+    return
 
-  amount = int(text_input)
-  user_id = update.effective_user.id
-  tx_ref = f"tx-fayda-{user_id}-{os.urandom(4).hex()}"
+  photo_file = update.message.photo[-1].file_id
 
-  chapa_url = "https://api.chapa.co/v1/transaction/initialize"
-  headers = {
-      "Authorization": f"Bearer {CHAPA_SECRET_KEY}",
-      "Content-Type": "application/json",
-  }
-  payload = {
-      "amount": str(amount),
-      "currency": "ETB",
-      "email": f"user_{user_id}@bot.et",
-      "first_name": update.effective_user.first_name or "User",
-      "tx_ref": tx_ref,
-      "callback_url": "https://webhook.site/test",
-  }
+  admin_keyboard = [
+      [
+          InlineKeyboardButton(
+              "✅ አጽድቅ (Approve)", callback_data=f"approve_{user.id}"
+          ),
+          InlineKeyboardButton(
+              "❌ ውድቅ አድርግ (Reject)", callback_data=f"reject_{user.id}"
+          ),
+      ]
+  ]
 
   try:
-    response = requests.post(
-        chapa_url, json=payload, headers=headers, timeout=30
+    await context.bot.send_photo(
+        chat_id=ADMIN_CHAT_ID,
+        photo=photo_file,
+        caption=(
+            f"📥 **አዲስ የክፍያ ስክሪንሾት ደርሷል!**\n\n👤 ስም: {user.full_name}\n🆔"
+            f" ዩዘር ID: `{user.id}`\n🔗 ዩዘርናም: @{user.username or 'None'}"
+        ),
+        reply_markup=InlineKeyboardMarkup(admin_keyboard),
+        parse_mode="Markdown",
     )
-    res_data = response.json()
+    await update.message.reply_text(t["receipt_received"], parse_mode="Markdown")
+  except Exception as e:
+    await update.message.reply_text(
+        "⚠️ ስክሪንሾቱን ወደ አድሚን መላክ አልተቻለም። እባክዎ ቆይተው እንደገና ይሞክሩ።"
+    )
 
-    if response.status_code == 200 and res_data.get("status") == "success":
-      checkout_url = res_data["data"]["checkout_url"]
-      await update.message.reply_text(
-          t["chapa_link_msg"].format(pay_url=checkout_url),
+
+# ----------------- Admin Action Handlers -----------------
+async def admin_callback_handler(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+  query = update.callback_query
+  await query.answer()
+  data = query.data
+
+  if data.startswith("approve_"):
+    target_user_id = int(data.split("_")[1])
+    context.user_data["pending_approve_user"] = target_user_id
+
+    await query.message.reply_text(
+        "✍️ እባክዎ ለዚህ ተጠቃሚ መሙላት የሚፈልጉትን የ**ፖይንት መጠን** (ቁጥር ብቻ"
+        " አድርገው) በጽሑፍ ይላኩልን (ለምሳሌ: 50 ወይም 100):",
+        parse_mode="Markdown",
+    )
+    return WAITING_POINT_AMOUNT
+
+  elif data.startswith("reject_"):
+    target_user_id = int(data.split("_")[1])
+    try:
+      await context.bot.send_message(
+          chat_id=target_user_id,
+          text=(
+              "❌ **የክፍያዎ ደረሰኝ ውድቅ ተደርጓል!**\n\nእባክዎ ትክክለኛ የክፍያ ደረሰኝ"
+              " መላክዎን ያረጋግጡ ወይም አድሚኑን ያነጋግሩ።"
+          ),
           parse_mode="Markdown",
       )
-    else:
-      await update.message.reply_text(
-          "የክፍያ ሊንክ ማመንጨት አልተቻለም። እባክዎ ቆይተው እንደገና ይሞክሩ።"
+      await query.edit_message_caption(
+          caption=query.message.caption
+          + "\n\n❌ **[ሁኔታ: ውድቅ ተደርጓል (Rejected)]**",
+          reply_markup=None,
       )
-  except Exception:
-    await update.message.reply_text("የኔትወርክ ስህተት አጋጥሟል።")
+    except Exception:
+      await query.message.reply_text("⚠️ ተጠቃሚው መልክቱን ማግኘት አልቻለም።")
 
+
+async def save_approved_points(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+):
+  text_input = update.message.text.strip()
+  if not text_input.isdigit():
+    await update.message.reply_text(
+        "⚠️ እባክዎ ትክክለኛ የፖይንት መጠን በቁጥር ብቻ (ለምሳሌ: 50) ያስገቡ:"
+    )
+    return WAITING_POINT_AMOUNT
+
+  points_to_add = int(text_input)
+  target_user_id = context.user_data.get("pending_approve_user")
+
+  if not target_user_id:
+    await update.message.reply_text(
+        "⚠️ ስህተት ተፈጥሯል (User ID አልተገኘም)። እባክዎ እንደገና ይሞክሩ።"
+    )
+    return ConversationHandler.END
+
+  new_total = add_user_points(target_user_id, points_to_add)
+
+  try:
+    await context.bot.send_message(
+        chat_id=target_user_id,
+        text=(
+            f"🎉 **እንኳን ደስ አለዎት!**\n\nክፍያዎ በአድሚኑ ጸድቋል ✅\n➕ **የተጨመረልዎ"
+            f" ፖይንት:** {points_to_add}\n💰 **ጠቅላላ ቀሪ ፖይንትዎ:** {new_total}"
+            " ፖይንት"
+        ),
+        parse_mode="Markdown",
+    )
+    await update.message.reply_text(
+        f"✅ ተጠቃሚው (ID: `{target_user_id}`) ৳{points_to_add} ፖይንት በተሳካ ሁኔታ"
+        f" ተሞልቶለታል! (አጠቃላይ ባላንስ: {new_total})",
+        parse_mode="Markdown",
+    )
+  except Exception:
+    await update.message.reply_text(
+        "⚠️ ፖይንቱ ተመዝግቧል ግን ለተጠቃሚው ማሳወቅ አልተቻለም።"
+    )
+
+  context.user_data.pop("pending_approve_user", None)
   return ConversationHandler.END
 
 
@@ -287,7 +388,7 @@ async def get_fin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
       msg = res_data.get("message", "OTP መላክ አልተቻለም።")
       await update.message.reply_text(
-          f"ስህተት ተከሰቷል: {msg}\n\nእንደገና ለመሞከር /start ይበሉ።"
+          f"❌ ስህተት ተከሰቷል: {msg}\n\nእንደገና ለመሞከር /start ይበሉ።"
       )
       return ConversationHandler.END
 
@@ -301,7 +402,9 @@ async def get_otp(update: Update, context: ContextTypes.DEFAULT_TYPE):
   t = TEXTS[lang]
   otp = update.message.text.strip().replace(" ", "")
   if len(otp) != 6 or not otp.isdigit():
-    await update.message.reply_text("እባክዎ ትክክለኛ የ6-ዲጂት OTP ብቻ ያስገቡ:")
+    await update.message.reply_text(
+        "⚠️ እባክዎ ትክክለኛ የ6-ዲጂት OTP ብቻ ያስገቡ:"
+    )
     return WAITING_OTP
 
   fan = context.user_data["fan"]
@@ -335,13 +438,13 @@ async def get_otp(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
       msg = res_data.get("message", "ማረጋገጥ አልተቻለም።")
       await update.message.reply_text(
-          f"ስህተት ተከሰቷል: {msg}\n\nእንደገና ለመሞከር /start ይበሉ።"
+          f"❌ ስህተት ተከሰቷል: {msg}\n\nእንደገና ለመሞከር /start ይበሉ።"
       )
       return ConversationHandler.END
 
   except Exception:
     await update.message.reply_text(
-        "ፋይሉን በማውረድ ላይ ችግር ተከሰተ። እባክዎ እንደገና ይሞክሩ።"
+        "⚠️ ፋይሉን በማውረድ ላይ ችግር ተከሰተ። እባክዎ እንደገና ይሞክሩ።"
     )
     return ConversationHandler.END
 
@@ -355,11 +458,20 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
   app = ApplicationBuilder().token(TELEGRAM_BOT_TOKEN).build()
 
-  conv_handler = ConversationHandler(
+  admin_point_conv = ConversationHandler(
+      entry_points=[CallbackQueryHandler(admin_callback_handler, pattern="^approve_")],
+      states={
+          WAITING_POINT_AMOUNT: [
+              MessageHandler(filters.TEXT & ~filters.COMMAND, save_approved_points)
+          ],
+      },
+      fallbacks=[CommandHandler("cancel", cancel)],
+  )
+
+  id_conv_handler = ConversationHandler(
       entry_points=[
           CommandHandler("start", start_cmd),
           CallbackQueryHandler(button_handler, pattern="^btn_get_id$"),
-          CallbackQueryHandler(button_handler, pattern="^btn_chapa_pay$"),
       ],
       states={
           WAITING_FAN: [
@@ -371,9 +483,6 @@ def main():
           WAITING_OTP: [
               MessageHandler(filters.TEXT & ~filters.COMMAND, get_otp)
           ],
-          WAITING_DEPOSIT_AMOUNT: [
-              MessageHandler(filters.TEXT & ~filters.COMMAND, create_chapa_link)
-          ],
       },
       fallbacks=[
           CommandHandler("start", start),
@@ -381,11 +490,14 @@ def main():
       ],
   )
 
-  app.add_handler(conv_handler)
+  app.add_handler(admin_point_conv)
+  app.add_handler(id_conv_handler)
+  app.add_handler(CallbackQueryHandler(admin_callback_handler, pattern="^reject_"))
   app.add_handler(CallbackQueryHandler(button_handler))
+  app.add_handler(MessageHandler(filters.PHOTO, handle_screenshot))
   app.add_handler(CommandHandler("start", start))
 
-  print("Bot is running...")
+  print("Bot with Admin Approval System is running...")
   app.run_polling()
 
 
