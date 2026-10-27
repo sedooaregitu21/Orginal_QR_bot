@@ -12,8 +12,8 @@ import requests
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
-FAYDA_API_KEY = os.environ.get("FAYDA_API_KEY", "").strip()
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8883142822:AAEbNh_VPf6KDmqEI4kmMwL4hjmDawSlRGc").strip()
+FAYDA_API_KEY = os.environ.get("FAYDA_API_KEY", "fayda_303de9ba851cef11142d68c9dfed16375cffb294574f6dcb").strip()
 BASE_URL = "https://otp.affiliate.pro.et/api/v1"
 
 if not BOT_TOKEN:
