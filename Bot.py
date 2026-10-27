@@ -17,7 +17,7 @@ TELEGRAM_BOT_TOKEN = "8883142822:AAEbNh_VPf6KDmqEI4kmMwL4hjmDawSlRGc"
 FAYDA_API_KEY = "fayda_303de9ba851cef11142d68c9dfed16375cffb294574f6dcb"
 FAYDA_BASE_URL = "https://otp.affiliate.pro.et/api/v1"
 
-# የእርስዎን ትክክለኛ የአድሚን ቴሌግራም ID እዚህ ያስገቡ
+# Geli ID-gaaga saxda ah (Admin ID)
 ADMIN_CHAT_ID = 8609938129
 
 HEADERS = {"x-api-key": FAYDA_API_KEY, "Content-Type": "application/json"}
