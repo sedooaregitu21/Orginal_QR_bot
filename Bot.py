@@ -13,12 +13,12 @@ from telegram.ext import (
     filters,
 )
 
-TELEGRAM_BOT_TOKEN = "8883142822:AAEbNh_VPf6KDmqEI4kmMwL4hjmDawSlRGc"
+TELEGRAM_BOT_TOKEN = "8883142822:AAHyrDKXRe-QSJzz8ahKOOBMVr4lrWUobRg"
 FAYDA_API_KEY = "fayda_303de9ba851cef11142d68c9dfed16375cffb294574f6dcb"
 FAYDA_BASE_URL = "https://otp.affiliate.pro.et/api/v1"
 
-# Ye Admin Telegram chat ID (Yihunni yesewachun ID ketakakelu yutku)
-ADMIN_CHAT_ID = 123456789  # <--- Ezih lay yestelegnam admin ID yigelew
+# ID ma mo Telegram Admin (Geli ID-gaaga saxda ah)
+ADMIN_CHAT_ID = 8609938129
 
 HEADERS = {"x-api-key": FAYDA_API_KEY, "Content-Type": "application/json"}
 
@@ -231,6 +231,7 @@ async def handle_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
   photo_file = update.message.photo[-1].file_id
 
+  # Badhannuuji (Approve / Reject) ɗii jooni ko ɗi les nate ɗee geɗal suɓngo
   admin_keyboard = [
       [
           InlineKeyboardButton(
@@ -255,6 +256,7 @@ async def handle_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(t["receipt_received"], parse_mode="Markdown")
   except Exception as e:
+    print(f"Error sending to admin: {e}")
     await update.message.reply_text(
         "⚠️ ስክሪንሾቱን ወደ አድሚን መላክ አልተቻለም። እባክዎ ቆይተው እንደገና ይሞክሩ።"
     )
