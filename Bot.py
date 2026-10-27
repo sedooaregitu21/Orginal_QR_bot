@@ -13,11 +13,11 @@ from telegram.ext import (
     filters,
 )
 
-TELEGRAM_BOT_TOKEN = "8883142822:AAEbNh_VPf6KDmqEI4kmMwL4hjmDawSlRGc"
+TELEGRAM_BOT_TOKEN = "8883142822:AAHyrDKXRe-QSJzz8ahKOOBMVr4lrWUobRg"
 FAYDA_API_KEY = "fayda_303de9ba851cef11142d68c9dfed16375cffb294574f6dcb"
 FAYDA_BASE_URL = "https://otp.affiliate.pro.et/api/v1"
 
-# ID ma mo Telegram Admin (Geli ID-gaaga saxda ah)
+# የእርስዎን ትክክለኛ የአድሚን ቴሌግራም ID እዚህ ያስገቡ
 ADMIN_CHAT_ID = 8609938129
 
 HEADERS = {"x-api-key": FAYDA_API_KEY, "Content-Type": "application/json"}
@@ -231,7 +231,6 @@ async def handle_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
   photo_file = update.message.photo[-1].file_id
 
-  # Badhannuuji (Approve / Reject) ɗii jooni ko ɗi les nate ɗee geɗal suɓngo
   admin_keyboard = [
       [
           InlineKeyboardButton(
@@ -243,13 +242,17 @@ async def handle_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE):
       ]
   ]
 
+  # ተጠቃሚው አሁን ያለው ፖይንት ከአቃቤ (Database) ይነበባል
+  user_points = get_user_points(user.id)
+
   try:
     await context.bot.send_photo(
         chat_id=ADMIN_CHAT_ID,
         photo=photo_file,
         caption=(
             f"📥 **አዲስ የክፍያ ስክሪንሾት ደርሷል!**\n\n👤 ስም: {user.full_name}\n🆔"
-            f" ዩዘር ID: `{user.id}`\n🔗 ዩዘርናም: @{user.username or 'None'}"
+            f" ዩዘር ID: `{user.id}`\n🔗 ዩዘርናም: @{user.username or 'None'}\n💰"
+            f" አሁን ያለው ፖይንት: `{user_points}` ፖይንት"
         ),
         reply_markup=InlineKeyboardMarkup(admin_keyboard),
         parse_mode="Markdown",
