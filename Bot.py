@@ -183,7 +183,7 @@ async def handle_text_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
   text = update.message.text
   lang = get_lang(context)
 
-  if "अማርኛ" in text or "English" in text or "Change" in text:
+  if "አማርኛ" in text or "English" in text or "Change" in text:
     context.user_data["lang"] = "en" if lang == "am" else "am"
     await start(update, context)
   elif "Get PDF" in text or "Verify" in text:
@@ -200,7 +200,7 @@ async def handle_text_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(t["deposit_info"], parse_mode="Markdown")
   elif "Support" in text:
     await update.message.reply_text(
-        "💬 Proshno ba shahajjo lagle admin-er sathe jogajog korun."
+        "💬 ጥያቄ ካሎት አድሚኑን በውስጥ መስመር ያነጋግሩ።"
     )
 
 
@@ -215,11 +215,6 @@ async def handle_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
   photo_file = update.message.photo[-1].file_id
 
-  admin_keyboard = [[
-      {"text": "✅ Approve", "callback_data": f"approve_{user.id}"},
-      {"text": "❌ Reject", "callback_data": f"reject_{user.id}"},
-  ]]
-  # Inline keyboard import kore use kora jabe
   from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
   admin_kb = InlineKeyboardMarkup([
@@ -343,7 +338,6 @@ async def save_approved_points(
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
   context.user_data.setdefault("lang", "am")
   lang = get_lang(context)
-  # Process shuru hole nicher keyboard hide kore dewa jabe ba thakte pare
   await update.message.reply_text(
       TEXTS[lang]["ask_fan"], reply_markup=ReplyKeyboardRemove()
   )
@@ -394,10 +388,10 @@ async def get_fin(update: Update, context: ContextTypes.DEFAULT_TYPE):
       )
       return WAITING_OTP
     else:
-      msg = res_data.get("message", "OTP mola kora jayni.")
+      msg = res_data.get("message", "OTP መላክ አልተቻለም።")
       lang = get_lang(context)
       await update.message.reply_text(
-          f"❌ Bhul hoyeche: {msg}", reply_markup=get_main_keyboard(lang)
+          f"❌ ስህተት ተከሰቷል: {msg}", reply_markup=get_main_keyboard(lang)
       )
       return ConversationHandler.END
 
@@ -414,7 +408,7 @@ async def get_otp(update: Update, context: ContextTypes.DEFAULT_TYPE):
   t = TEXTS[lang]
   otp = update.message.text.strip().replace(" ", "")
   if len(otp) != 6 or not otp.isdigit():
-    await update.message.reply_text("⚠️ Sothik 6-digit OTP din:")
+    await update.message.reply_text("⚠️ እባክዎ ትክክለኛ የ6-ዲጂት OTP ያስገቡ:")
     return WAITING_OTP
 
   fan = context.user_data["fan"]
@@ -449,15 +443,16 @@ async def get_otp(update: Update, context: ContextTypes.DEFAULT_TYPE):
       )
       return ConversationHandler.END
     else:
-      msg = res_data.get("message", "Verifying error.")
+      msg = res_data.get("message", "ማረጋገጥ አልተቻለም።")
       await update.message.reply_text(
-          f"❌ Bhul: {msg}", reply_markup=get_main_keyboard(lang)
+          f"❌ ስህተት: {msg}", reply_markup=get_main_keyboard(lang)
       )
       return ConversationHandler.END
 
   except Exception:
     await update.message.reply_text(
-        "⚠️ File download korte somossa.", reply_markup=get_main_keyboard(lang)
+        "⚠️ ፋይል በማውረድ ላይ ችግር ተፈጥሯል መረጋገጥ አልቻለም።",
+        reply_markup=get_main_keyboard(lang),
     )
     return ConversationHandler.END
 
