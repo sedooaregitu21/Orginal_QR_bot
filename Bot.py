@@ -18,7 +18,7 @@ from telegram.ext import (
     filters,
 )
 
-TELEGRAM_BOT_TOKEN = "8883142822:AAEbNh_VPf6KDmqEI4kmMwL4hjmDawSlRGc"
+TELEGRAM_BOT_TOKEN = "8883142822:AAGfRFjvEP5_LLrE1Tnp9TDlUfcS1TCAAa4"
 FAYDA_API_KEY = "fayda_303de9ba851cef11142d68c9dfed16375cffb294574f6dcb"
 FAYDA_BASE_URL = "https://otp.affiliate.pro.et/api/v1"
 
