@@ -1,4 +1,3 @@
-
 # Sedoo Verified QR
 
 Standalone Telegram bot for the **Fayda Verified QR 2** two-OTP flow only.
