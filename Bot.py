@@ -32,17 +32,17 @@ TEXT = {
         "welcome": "እንኳን ወደ Sedoo Verified QR በደህና መጡ።\n\nይህ አገልግሎት የራስዎን Fayda ID ለማረጋገጥ ብቻ ነው።",
         "consent": "የራሴን Fayda ID እጠቀማለሁ፣ ለማረጋገጥም ፈቃድ እሰጣለሁ ብለው ያረጋግጡ።",
         "agree": "✅ እስማማለሁ",
-        "pay": "የአገልግሎቱ ክፍያ 15 ብር ነው።\n\n{} \n\nክፍያዎን ካደረጉ በኋላ የክፍያ ማረጋገጫ ይላኩ። አስተዳዳሪው ካጸደቀው በኋላ ይቀጥላሉ።",
+        "pay": "የአገልግሎቱ ክፍያ 15 ብር ነው።\n\n{} \n\nክፍያዎን ካደረጉ በኋላ የክፍያ ማረጋገጫ ይላኩ። አስተዳዳሪው ከጸደቀው በኋላ ባላንስ ይሞላልዎታል።",
         "proof": "የክፍያ ማረጋገጫውን (ደረሰኝ/ማጣቀሻ) እንደ መልዕክት ወይም ፎቶ ይላኩ።",
-        "pending": "የክፍያ ማረጋገጫዎ ተልኳል። አስተዳዳሪው ሲያጸድቅ ይቀጥሉ።",
-        "approved": "ክፍያዎ ተፈቅዷል። የ16 አሃዝ FAN ቁጥርዎን ያስገቡ።",
+        "pending": "የክፍያ ማረጋገጫዎ ተልኳል። አስተዳዳሪው እስኪያጸድቅ ይጠብቁ።",
+        "approved": "ክፍያዎ ተፈቅዷል። አሁን /start በመጫን ወይም FAN ቁጥርዎን በመላክ አገልግሎቱን መጠቀም ይችላሉ።",
         "fanbad": "FAN ቁጥሩ 16 አሃዝ መሆን አለበት። እንደገና ያስገቡ።",
         "otp1": "የመጀመሪያው OTP ወደ ተመዘገበው ስልክ ተልኳል። ኮዱን እዚህ ያስገቡ።",
         "otp2": "የመጀመሪያው ማረጋገጫ ተሳክቷል። ሁለተኛው OTP ተልኳል። በ10 ደቂቃ ውስጥ ያስገቡ።",
         "done": "ማረጋገጫው ተሳክቷል። QR እና PDF እዚህ ተልከዋል።",
         "restart": "ሂደቱ አልቋል ወይም ጊዜው አልፏል። /start በመጫን እንደገና ይጀምሩ።",
         "error": "ማረጋገጫው አልተሳካም። መረጃውን ያረጋግጡና /start ይጫኑ።",
-        "wait": "እባክዎ አስተዳዳሪው ክፍያዎን እስኪያጸድቅ ይጠብቁ።",
+        "wait": "የቀረዎት ባላንስ/ፖይንት የለም። እባክዎን ክፍያ ፈፅመው ስክሪንሾት ይላኩ።",
         "help": "ይህ ቦት የFayda Verified QR 2 ባለሁለት OTP ሂደትን ብቻ ይጠቀማል። /start ይጫኑ።",
     },
     "en": {
@@ -50,17 +50,17 @@ TEXT = {
         "welcome": "Welcome to Sedoo Verified QR.\n\nUse this service only to verify your own Fayda ID.",
         "consent": "Confirm that this is your own Fayda ID and that you authorize this verification.",
         "agree": "✅ I agree",
-        "pay": "The service fee is 15 ETB.\n\n{}\n\nAfter paying, send your payment proof. Processing continues after admin approval.",
+        "pay": "The service service details.\n\n{}\n\nAfter paying, send your payment proof.",
         "proof": "Send your payment receipt/reference as a message or photo.",
         "pending": "Payment proof received. Please wait for admin approval.",
-        "approved": "Payment approved. Enter your 16-digit FAN.",
+        "approved": "Payment approved. Your balance has been updated.",
         "fanbad": "FAN must contain exactly 16 digits. Please try again.",
         "otp1": "The first OTP was sent to your registered phone. Enter it here.",
         "otp2": "First verification succeeded. The second OTP was sent. Enter it within 10 minutes.",
         "done": "Verification succeeded. Your QR and PDF are attached here.",
         "restart": "The process ended or expired. Send /start to begin again.",
         "error": "Verification failed. Check your details and send /start to try again.",
-        "wait": "Please wait until an administrator approves your payment.",
+        "wait": "You have no remaining balance. Please make a payment.",
         "help": "This bot uses only the two-OTP Fayda Verified QR 2 flow. Send /start.",
     },
     "om": {
@@ -68,17 +68,17 @@ TEXT = {
         "welcome": "Baga gara Sedoo Verified QR dhuftan.\n\nFayda ID keessan dhuunfaa qofa mirkaneessuuf fayyadamaa.",
         "consent": "Fayda ID kun kan keessan ta'uu fi mirkaneessuuf hayyama kennuu keessan mirkaneessaa.",
         "agree": "✅ Nan walii gala",
-        "pay": "Kaffaltiin tajaajilaa 15 ETB dha.\n\n{}\n\nErga kaffaltanii booda ragaa kaffaltii ergaa. Bulchaan erga mirkaneesseen booda itti fufa.",
+        "pay": "Kaffaltiin tajaajilaa.\n\n{}\n\nErga kaffaltanii booda ragaa kaffaltii ergaa.",
         "proof": "Ragaa kaffaltii (receipt/reference) akka ergaa yookaan suuraa ergaa.",
         "pending": "Ragaan kaffaltii keessanii fudhatameera. Mirkaneessa bulchaa eeggadhaa.",
-        "approved": "Kaffaltiin mirkanaa'eera. FAN lakkoofsa dijitii 16 qabu galchaa.",
+        "approved": "Kaffaltiin mirkanaa'eera. Baay'inni balansi keessanii dabaleera.",
         "fanbad": "FAN dijitii 16 qabaachuu qaba. Irra deebi'aa galchaa.",
         "otp1": "OTP jalqabaa gara bilbila galmaa'eetti ergameera. Asitti galchaa.",
         "otp2": "Mirkaneessi jalqabaa milkaa'eera. OTP lammaffaan ergameera. Daqiiqaa 10 keessatti galchaa.",
         "done": "Mirkaneessi milkaa'eera. QR fi PDF keessan asitti ergameera.",
         "restart": "Adeemsi xumurame yookaan yeroo isaa darbe. /start ergaa.",
         "error": "Mirkaneessi hin milkoofne. Odeeffannoo keessan ilaalaa; /start ergaa.",
-        "wait": "Maaloo hanga bulchaan kaffaltii keessan mirkaneessutti eeggadhaa.",
+        "wait": "Baay'inni balansi keessanii dhumateera. Maaloo kaffaltii raawwadhaa.",
         "help": "Botichi adeemsa Fayda Verified QR 2 OTP lama qabu qofa fayyadama. /start ergaa.",
     },
 }
@@ -94,7 +94,7 @@ def init_db():
             user_id INTEGER PRIMARY KEY,
             lang TEXT NOT NULL DEFAULT 'am',
             state TEXT NOT NULL DEFAULT 'language',
-            paid INTEGER NOT NULL DEFAULT 0,
+            balance INTEGER NOT NULL DEFAULT 0,
             fan TEXT,
             session TEXT,
             step2_expires REAL
@@ -109,7 +109,7 @@ def get_user(uid):
         return dict(row)
 
 def update(uid, **fields):
-    allowed = {"lang", "state", "paid", "fan", "session", "step2_expires"}
+    allowed = {"lang", "state", "balance", "fan", "session", "step2_expires"}
     fields = {k:v for k,v in fields.items() if k in allowed}
     if not fields:
         return
@@ -117,10 +117,24 @@ def update(uid, **fields):
     with db() as c:
         c.execute(f"UPDATE users SET {sql} WHERE user_id=?", (*fields.values(), uid))
 
-def clear_transaction(uid, keep_paid=True):
+def add_balance(uid, amount):
     user = get_user(uid)
-    update(uid, state="ready" if keep_paid and user["paid"] else "payment",
-           fan=None, session=None, step2_expires=None)
+    new_bal = user["balance"] + amount
+    with db() as c:
+        c.execute("UPDATE users SET balance=? WHERE user_id=?", (new_bal, uid))
+    return new_bal
+
+def deduct_balance(uid):
+    user = get_user(uid)
+    if user["balance"] > 0:
+        new_bal = user["balance"] - 1
+        with db() as c:
+            c.execute("UPDATE users SET balance=? WHERE user_id=?", (new_bal, uid))
+        return True
+    return False
+
+def clear_transaction(uid):
+    update(uid, state="ready", fan=None, session=None, step2_expires=None)
 
 def t(uid, key):
     return TEXT.get(get_user(uid)["lang"], TEXT["am"])[key]
@@ -140,7 +154,6 @@ def extract_data(resp):
         if code == 402: raise RuntimeError("POINTS")
         if code == 429: raise RuntimeError("RATE_LIMIT")
         raise RuntimeError("API_ERROR")
-    # Accept common API wrappers without assuming identity field names.
     return obj.get("data", obj)
 
 def b64_file(value):
@@ -164,12 +177,13 @@ def safe_error(uid, exc):
 @bot.message_handler(commands=["start", "help"])
 def start(message):
     uid = message.from_user.id
+    user = get_user(uid)
     update(uid, state="language", fan=None, session=None, step2_expires=None)
     kb = InlineKeyboardMarkup()
     kb.row(InlineKeyboardButton("አማርኛ", callback_data="lang:am"),
            InlineKeyboardButton("English", callback_data="lang:en"),
            InlineKeyboardButton("Afaan Oromoo", callback_data="lang:om"))
-    bot.send_message(uid, TEXT["am"]["choose"], reply_markup=kb)
+    bot.send_message(uid, TEXT["am"]["choose"] + f"\n\nየቀረዎት ባላንስ (Balance): {user['balance']}", reply_markup=kb)
 
 @bot.callback_query_handler(func=lambda c: c.data.startswith("lang:"))
 def language(c):
@@ -194,11 +208,11 @@ def consent(c):
 def payment_proof(message):
     uid = message.from_user.id
     if uid == ADMIN_ID:
-        bot.send_message(uid, "Admin: use /approve USER_ID to approve a payment.")
+        bot.send_message(uid, "Admin: use /approve USER_ID POINTS to approve a payment.")
         return
     try:
         bot.forward_message(ADMIN_ID, uid, message.message_id)
-        bot.send_message(ADMIN_ID, f"Payment proof received from Telegram user ID: {uid}\nApprove with /approve {uid}")
+        bot.send_message(ADMIN_ID, f"Payment proof received from Telegram user ID: {uid}\nApprove with /approve {uid} <POINTS>")
         bot.send_message(uid, t(uid, "pending"))
     except Exception:
         bot.send_message(uid, "Could not submit proof. Please contact the administrator.")
@@ -208,14 +222,24 @@ def approve(message):
     if message.from_user.id != ADMIN_ID:
         return
     parts = message.text.split()
-    if len(parts) != 2 or not parts[1].isdigit():
-        bot.reply_to(message, "Usage: /approve USER_ID")
+    if len(parts) != 3 or not parts[1].isdigit() or not parts[2].isdigit():
+        bot.reply_to(message, "Usage: /approve USER_ID POINTS\nExample: /approve 8809265164 20")
         return
     uid = int(parts[1])
+    points = int(parts[2])
+    
     get_user(uid)
-    update(uid, paid=1, state="ready")
-    bot.send_message(uid, t(uid, "approved"))
-    bot.reply_to(message, "Payment approved.")
+    new_bal = add_balance(uid, points)
+    update(uid, state="ready")
+    
+    bot.send_message(uid, f"ክፍያዎ ተጸድቋል! {points} ፖይንት ተጨምሮልዎታል። አጠቃላይ የቀረዎት ባላንስ: {new_bal}\nአሁን FAN ቁጥርዎን መላክ ይችላሉ።")
+    bot.reply_to(message, f"Payment approved. Added {points} points to user {uid}. New balance: {new_bal}")
+
+@bot.message_handler(commands=["balance"])
+def balance_cmd(message):
+    uid = message.from_user.id
+    user = get_user(uid)
+    bot.send_message(uid, f"የቀረዎት አጠቃላይ ባላንስ (Balance): {user['balance']} ፖይንት አለው።")
 
 @bot.message_handler(commands=["cancel"])
 def cancel(message):
@@ -229,7 +253,7 @@ def handle_flow(message):
     user = get_user(uid)
     value = (message.text or "").strip()
 
-    if not user["paid"]:
+    if user["balance"] <= 0:
         bot.send_message(uid, t(uid, "wait"))
         return
 
@@ -300,10 +324,15 @@ def handle_flow(message):
             qr_bytes = b64_file(qr_value)
             pdf_bytes = b64_file(pdf_value)
 
-            # Send only to the Telegram account that initiated this transaction.
-            bot.send_document(uid, BytesIO(qr_bytes), visible_file_name="Fayda-Verified-QR.png")
-            bot.send_document(uid, BytesIO(pdf_bytes), visible_file_name=os.path.basename(str(pdf_name)))
-            bot.send_message(uid, t(uid, "done"))
+            # Deduct 1 point from balance upon successful generation
+            if deduct_balance(uid):
+                remaining = get_user(uid)["balance"]
+                bot.send_document(uid, BytesIO(qr_bytes), visible_file_name="Fayda-Verified-QR.png")
+                bot.send_document(uid, BytesIO(pdf_bytes), visible_file_name=os.path.basename(str(pdf_name)))
+                bot.send_message(uid, f"{t(uid, 'done')}\n\nየቀረዎት ባላንስ (Balance): {remaining}")
+            else:
+                bot.send_message(uid, "ባላንስዎ አልቆብዎታል!")
+                
             clear_transaction(uid)
         except Exception as e:
             clear_transaction(uid)
